@@ -1,8 +1,7 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class CameraLook : NetworkBehaviour
+public class CameraLook : MonoBehaviour
 {
     public GameObject PlayerObject;
 
@@ -16,13 +15,10 @@ public class CameraLook : NetworkBehaviour
     void Start()
     {
         rotX = transform.localRotation.eulerAngles.x;
-        localCam = transform.parent.GetComponent<NetworkIdentity>().isLocalPlayer;
     }
 
     void Update()
     {
-        if (!localCam)
-            return;
         float mouseY = -Input.GetAxis("Mouse Y");
         
         rotX += mouseY * mouseSensitivity * Time.deltaTime;

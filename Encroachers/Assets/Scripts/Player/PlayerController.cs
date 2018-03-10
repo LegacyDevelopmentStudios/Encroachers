@@ -1,17 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class PlayerController : NetworkBehaviour {
+
+public class PlayerController : MonoBehaviour {
 
     void Start() {
-        transform.GetChild(0).GetComponent<Camera>().enabled = isLocalPlayer;
+        transform.GetChild(0).GetComponent<Camera>();
     }
 
-    void Update() {
-        if (!isLocalPlayer)
-            return;
+    void Update() 
+    {
         var x = Input.GetAxis("Horizontal") * Time.deltaTime * 150.0f;
         var z = Input.GetAxis("Vertical") * Time.deltaTime * 3.0f;
 

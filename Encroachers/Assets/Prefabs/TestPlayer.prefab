@@ -43,8 +43,6 @@ GameObject:
   - component: {fileID: 33256118817754976}
   - component: {fileID: 65108824965255908}
   - component: {fileID: 23798994360523766}
-  - component: {fileID: 114100870894625300}
-  - component: {fileID: 114875367143551330}
   - component: {fileID: 114808591120862766}
   - component: {fileID: 114969026855954176}
   m_Layer: 0
@@ -61,7 +59,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1839071859175766}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalPosition: {x: -0.38357544, y: 5.3, z: -6.2598724}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_Children:
   - {fileID: 4983894972405014}
@@ -177,38 +175,6 @@ AudioListener:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1561190838395104}
   m_Enabled: 1
---- !u!114 &114100870894625300
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1839071859175766}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SceneId:
-    m_Value: 0
-  m_AssetId:
-    i0: 117
-    i1: 242
-    i2: 73
-    i3: 63
-    i4: 15
-    i5: 151
-    i6: 167
-    i7: 164
-    i8: 232
-    i9: 168
-    i10: 137
-    i11: 184
-    i12: 93
-    i13: 115
-    i14: 180
-    i15: 231
-  m_ServerOnly: 0
-  m_LocalPlayerAuthority: 1
 --- !u!114 &114374141266829170
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -240,27 +206,6 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1561190838395104}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TransformSyncMode: 1
-  m_SendInterval: 0.1
-  m_SyncRotationAxis: 7
-  m_RotationSyncCompression: 0
-  m_SyncSpin: 0
-  m_MovementTheshold: 0.001
-  m_VelocityThreshold: 0.0001
-  m_SnapThreshold: 5
-  m_InterpolateRotation: 1
-  m_InterpolateMovement: 1
---- !u!114 &114875367143551330
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1839071859175766}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
