@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+//using UnityEngine.Networking;
 
 public class PlayerMovement : MonoBehaviour {
 
@@ -30,6 +31,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        
         thisrb = GetComponent<Rigidbody>();
         thiscldr = GetComponent<Collider>();
         camlook = fpsCamera.GetComponent<CameraLook>();
