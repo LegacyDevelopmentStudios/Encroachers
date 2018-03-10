@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
 
-    public float speed = 5.0f;
+    public float speed = 10.0f;
 
     private Rigidbody rb;
 
@@ -14,12 +14,11 @@ public class PlayerMovement : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+	void Update ()
+    {
+        float moveX = Input.GetAxis("Horizontal") * Time.deltaTime * speed;
+        float moveZ = Input.GetAxis("Vertical") * Time.deltaTime * speed;
 
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-
-        rb.AddForce(movement * speed);
+        transform.Translate(moveX, 0, moveZ);
 	}
 }
