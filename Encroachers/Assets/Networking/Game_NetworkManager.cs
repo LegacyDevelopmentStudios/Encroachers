@@ -11,11 +11,11 @@ public class Game_NetworkManager : Photon.MonoBehaviour {
 	private void Start () 
 	{
 		PhotonNetwork.ConnectUsingSettings("testing branch");
-		connectionText.text = PhotonNetwork.connectionStateDetailed.ToString();
+		
 	}
 	
 	private void Update () 
 	{
-		
+		connectionText.text = PhotonNetwork.connectionStateDetailed.ToString();
 	}
 }
