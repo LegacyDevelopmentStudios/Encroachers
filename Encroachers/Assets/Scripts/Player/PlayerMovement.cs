@@ -1,20 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 //using UnityEngine.Networking;
 
-public class PlayerMovement : MonoBehaviour {
+public class PlayerMovement : Photon.MonoBehaviour {
 
     // ===== Public Vars
     public float speed = 10.0f;
-    public float jumpForce = 20.0f;
+    public float jumpForce = 5.0f;
 
     public Camera fpsCamera;
+
+    public Text debugText;
 
 
     // ===== Private Vars
     private bool isOnGround = true;
-    private bool isFirstJump = false;
 
     private int jumpState = 0;
 
@@ -31,7 +33,8 @@ public class PlayerMovement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        
+        //enabled = photonView.isMine;
+
         thisrb = GetComponent<Rigidbody>();
         thiscldr = GetComponent<Collider>();
         camlook = fpsCamera.GetComponent<CameraLook>();
@@ -45,44 +48,55 @@ public class PlayerMovement : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            ToggleCursorState();
-        }
-
-        if (isOnGround == true)
-        {
+        //if (photonView.isMine == true)
+        //{
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                ToggleCursorState();
+            }
             // Get input.
-            vel.x = Input.GetAxis("Horizontal") * Time.deltaTime * speed;
-            vel.z = Input.GetAxis("Vertical") * Time.deltaTime * speed;
+            vel.x = Input.GetAxis("Horizontal") * Time.deltaTime * speed * 25.0f;
+            vel.y = 0f;
+            vel.z = Input.GetAxis("Vertical") * Time.deltaTime * speed * 25.0f;
 
-            // Move the player.
-            transform.Translate(vel);
-        }
-        else
-        {
-            // Move the player.
-            //transform.Translate(vel);
-            transform.position += vel;
-        }
+            if (isOnGround == true)
+            {
+                // Move the player.
+                transform.Translate(vel);
+            }
+            else
+            {
+                // Move the player.
+                if (thisrb.velocity.magnitude < 12.0f)
+                {
+                    thisrb.AddRelativeForce(vel);
+                }
+            }
 
+            // Rotate the player on the Y euler axis.
+            rotY += Input.GetAxis("Mouse X") * camlook.mouseSensitivity * Time.deltaTime;
+            Quaternion localRotation = Quaternion.Euler(0.0f, rotY, 0.0f);
+            transform.rotation = localRotation;
 
-        //vel.x = Input.GetAxis("Horizontal") * Time.deltaTime * speed * 200.0f;
-        //vel.z = Input.GetAxis("Vertical") * Time.deltaTime * speed * 200.0f;
+            HandleJump();
 
-        //thisrb.AddRelativeForce(vel);
-
-        //if(thisrb.velocity.magnitude > )
-
-        // Rotate the player on the Y euler axis.
-        rotY += Input.GetAxis("Mouse X") * camlook.mouseSensitivity * Time.deltaTime;
-        Quaternion localRotation = Quaternion.Euler(0.0f, rotY, 0.0f);
-        transform.rotation = localRotation;
-
-        HandleJump();
+            debugText.text = GetDebugText();
+        //}
     }
 
 
+    private string GetDebugText()
+    {
+        return "isOnGround: " + isOnGround.ToString() + NL() +
+                "jumpState: " + jumpState.ToString() + NL() +
+                "IsGrounded: " + IsGrounded().ToString() + NL() +
+                "Vel Mag: " + thisrb.velocity.magnitude.ToString();
+    }
+
+    private string NL()
+    {
+        return "\n";
+    }
 
 
     /* ===================================================== *
@@ -102,7 +116,7 @@ public class PlayerMovement : MonoBehaviour {
             case 0:
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    Jump();
+                    Jump(jumpForce, vel.normalized);
                     jumpState = 1;
                     isOnGround = false;
                 }
@@ -110,23 +124,24 @@ public class PlayerMovement : MonoBehaviour {
             case 1:
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    Jump();
+                    Jump(jumpForce, vel.normalized);
                     jumpState = 2;
                 }
                 break;
             case 2:
                 break;
         }
-        print("Func: " + IsGrounded());
-        print("Var: " + isOnGround);
-        print(jumpState);
-        
     }
 
     // Apply a force in the upward direction. aka Jump.
-    private void Jump()
+    //private void Jump()
+    //{
+    //    thisrb.AddForce(transform.up * jumpForce * 10.0f, ForceMode.Impulse);
+    //}
+    void Jump(float jumpHeight, Vector3 movement)
     {
-        thisrb.AddForce(transform.up * jumpForce * Time.deltaTime * 980.0f);
+        // Add an Impulse force to the Rigidbody´s transform (direction up) and multiply it by the jumpHeight float.
+        thisrb.AddForce(transform.TransformDirection(new Vector3(movement.x * 0.25f, 1f, movement.z * 0.25f)) * jumpHeight, ForceMode.Impulse);
     }
 
     // Cast a ray in the negative up direction to test if the player is on the ground.
