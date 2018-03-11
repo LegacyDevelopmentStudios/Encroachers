@@ -50,37 +50,52 @@ public class PlayerMovement : Photon.MonoBehaviour {
     {
         //if (photonView.isMine == true)
         //{
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                ToggleCursorState();
-            }
-            // Get input.
-            vel.x = Input.GetAxis("Horizontal") * Time.deltaTime * speed * 25.0f;
-            vel.y = 0f;
-            vel.z = Input.GetAxis("Vertical") * Time.deltaTime * speed * 25.0f;
 
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ToggleCursorState();
+        }
+        // Get input.
+        vel.x = Input.GetAxis("Horizontal") * Time.deltaTime * speed * thisrb.mass;
+        vel.y = 0f;
+        vel.z = Input.GetAxis("Vertical") * Time.deltaTime * speed * thisrb.mass;
+
+
+
+        if (vel.magnitude > 0f || vel.magnitude < 0f)
+        {
             if (isOnGround == true)
             {
                 // Move the player.
-                transform.Translate(vel);
+                if (thisrb.velocity.magnitude < 12.0f)
+                {
+                    thisrb.AddRelativeForce(vel, ForceMode.Impulse);
+                }
             }
             else
             {
                 // Move the player.
                 if (thisrb.velocity.magnitude < 12.0f)
                 {
-                    thisrb.AddRelativeForce(vel);
+                    thisrb.AddRelativeForce(vel, ForceMode.Impulse);
                 }
             }
+        }
 
-            // Rotate the player on the Y euler axis.
-            rotY += Input.GetAxis("Mouse X") * camlook.mouseSensitivity * Time.deltaTime;
-            Quaternion localRotation = Quaternion.Euler(0.0f, rotY, 0.0f);
-            transform.rotation = localRotation;
+        thisrb.AddForce(-(thisrb.mass * (thisrb.velocity * 0.5f)));
 
-            HandleJump();
 
-            debugText.text = GetDebugText();
+        // Rotate the player on the Y euler axis.
+        rotY += Input.GetAxis("Mouse X") * camlook.mouseSensitivity * Time.deltaTime;
+        Quaternion localRotation = Quaternion.Euler(0.0f, rotY, 0.0f);
+        transform.rotation = localRotation;
+
+        HandleJump();
+
+        debugText.text = GetDebugText();
+
+
         //}
     }
 
@@ -90,7 +105,8 @@ public class PlayerMovement : Photon.MonoBehaviour {
         return "isOnGround: " + isOnGround.ToString() + NL() +
                 "jumpState: " + jumpState.ToString() + NL() +
                 "IsGrounded: " + IsGrounded().ToString() + NL() +
-                "Vel Mag: " + thisrb.velocity.magnitude.ToString();
+                "RB Vel Mag: " + thisrb.velocity.magnitude.ToString() + NL() +
+                "Vel Mag: " + vel.magnitude.ToString();
     }
 
     private string NL()
