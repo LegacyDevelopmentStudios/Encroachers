@@ -7,29 +7,32 @@ using UnityEngine.UI;
 public class PlayerMovement : Photon.MonoBehaviour {
 
     // ===== Public Vars
-    public float speed = 10.0f;
-    public float jumpForce = 5.0f;
+    public float speed      = 10.0f;
+    public float speedMax   = 15.0f;
+    public float jumpForce  = 5.0f;
+    public float dampFactor = 2.0f;
 
-    public Camera fpsCamera;
+    public Camera   fpsCamera;
 
-    public Text debugText;
+    public Text     debugText;
 
 
     // ===== Private Vars
-    private bool isOnGround = true;
+    private bool    isOnGround = true;
 
-    private int jumpState = 0;
+    private int     jumpState = 0;
 
-    private float distToGround;
-    private float rotY;
-    private float maxSpeed;
+    private float   distToGround;
+    private float   rotY;
+    private float   maxSpeed;
+    private float   forceMult;
     
 
-    private Rigidbody thisrb;
-    private Collider thiscldr;
-    private CameraLook camlook;
+    private Rigidbody   thisrb;
+    private Collider    thiscldr;
+    private CameraLook  camlook;
 
-    private Vector3 vel;
+    private Vector3     velDamp, input;
 
 	// Use this for initialization
 	void Start () {
@@ -57,33 +60,45 @@ public class PlayerMovement : Photon.MonoBehaviour {
             ToggleCursorState();
         }
         // Get input.
-        vel.x = Input.GetAxis("Horizontal") * Time.deltaTime * speed * thisrb.mass;
-        vel.y = 0f;
-        vel.z = Input.GetAxis("Vertical") * Time.deltaTime * speed * thisrb.mass;
+        input.x = Input.GetAxis("Horizontal") * Time.deltaTime * speed * thisrb.mass * 5f;
+        input.y = 0f;
+        input.z = Input.GetAxis("Vertical") * Time.deltaTime * speed * thisrb.mass * 5f;
 
+        velDamp.x = -thisrb.velocity.x;
+        velDamp.y = -thisrb.velocity.y * 0.2f;
+        velDamp.z = -thisrb.velocity.z;
 
+        velDamp = new Vector3(-thisrb.velocity.x, -thisrb.velocity.y * 0.2f, -thisrb.velocity.z);
 
-        if (vel.magnitude > 0f || vel.magnitude < 0f)
+        forceMult = ((speedMax - thisrb.velocity.magnitude) / speedMax);
+
+        if (input.magnitude > 0f || input.magnitude < 0f)
         {
             if (isOnGround == true)
             {
                 // Move the player.
-                if (thisrb.velocity.magnitude < 12.0f)
-                {
-                    thisrb.AddRelativeForce(vel, ForceMode.Impulse);
-                }
+                //if (thisrb.velocity.magnitude < 12.0f)
+                //{
+                //    thisrb.AddRelativeForce(input * 2f, ForceMode.VelocityChange);
+                //}
+                thisrb.AddRelativeForce(input * 2f * forceMult, ForceMode.VelocityChange);
             }
             else
             {
                 // Move the player.
-                if (thisrb.velocity.magnitude < 12.0f)
-                {
-                    thisrb.AddRelativeForce(vel, ForceMode.Impulse);
-                }
+                //if (thisrb.velocity.magnitude < 12.0f)
+                //{
+                //    thisrb.AddRelativeForce(input, ForceMode.VelocityChange);
+                //}
+                thisrb.AddRelativeForce(input * forceMult, ForceMode.VelocityChange);
             }
+            thisrb.AddForce(velDamp * thisrb.mass * dampFactor * 0.5f);
+        }
+        else
+        {
+            thisrb.AddForce(velDamp * thisrb.mass * dampFactor);
         }
 
-        thisrb.AddForce(-(thisrb.mass * (thisrb.velocity * 0.5f)));
 
 
         // Rotate the player on the Y euler axis.
@@ -106,7 +121,11 @@ public class PlayerMovement : Photon.MonoBehaviour {
                 "jumpState: " + jumpState.ToString() + NL() +
                 "IsGrounded: " + IsGrounded().ToString() + NL() +
                 "RB Vel Mag: " + thisrb.velocity.magnitude.ToString() + NL() +
-                "Vel Mag: " + vel.magnitude.ToString();
+                "input Mag: " + input.magnitude.ToString() + NL() +
+                "input: " + input.ToString() + NL() +
+                "velDamp Mag: " + velDamp.magnitude.ToString() + NL() +
+                "velDamp: " + velDamp.ToString() + NL() +
+                "percent: " + (forceMult * 100f).ToString() + "%";
     }
 
     private string NL()
@@ -132,7 +151,7 @@ public class PlayerMovement : Photon.MonoBehaviour {
             case 0:
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    Jump(jumpForce, vel.normalized);
+                    Jump(jumpForce, input.normalized);
                     jumpState = 1;
                     isOnGround = false;
                 }
@@ -140,7 +159,7 @@ public class PlayerMovement : Photon.MonoBehaviour {
             case 1:
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    Jump(jumpForce, vel.normalized);
+                    Jump(jumpForce, input.normalized);
                     jumpState = 2;
                 }
                 break;
@@ -157,7 +176,7 @@ public class PlayerMovement : Photon.MonoBehaviour {
     void Jump(float jumpHeight, Vector3 movement)
     {
         // Add an Impulse force to the Rigidbody´s transform (direction up) and multiply it by the jumpHeight float.
-        thisrb.AddForce(transform.TransformDirection(new Vector3(movement.x * 0.25f, 1f, movement.z * 0.25f)) * jumpHeight, ForceMode.Impulse);
+        thisrb.AddForce(transform.TransformDirection(new Vector3(movement.x * 0.1f, 1f, movement.z * 0.1f)) * jumpHeight, ForceMode.Impulse);
     }
 
     // Cast a ray in the negative up direction to test if the player is on the ground.

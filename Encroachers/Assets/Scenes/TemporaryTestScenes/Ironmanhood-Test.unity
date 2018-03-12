@@ -379,8 +379,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fbea61c8958b7c4e8b3a4cdb1c1bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 50
+  speed: 10
+  speedMax: 15
   jumpForce: 7.5
+  dampFactor: 2
   fpsCamera: {fileID: 75391277}
   debugText: {fileID: 1604554880}
 --- !u!54 &116695638
