@@ -1,15 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class SimpleAIScript : MonoBehaviour {
 
-    public float speed = 2.5f;
+    public float agentSpeed = 2.5f;
 
     public GameObject gobj;
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+    {
 		
 	}
 	
@@ -21,6 +23,6 @@ public class SimpleAIScript : MonoBehaviour {
         direction.y = 0.0f;
 
         transform.LookAt(gobj.transform.position, Vector3.up);
-        transform.Translate(direction.normalized * speed * Time.deltaTime, Space.World);
+        transform.Translate(direction.normalized * agentSpeed * Time.deltaTime, Space.World);
 	}
 }
