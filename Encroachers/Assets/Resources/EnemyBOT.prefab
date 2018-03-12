@@ -26,11 +26,11 @@ GameObject:
   - component: {fileID: 114919212165994654}
   m_Layer: 0
   m_Name: EnemyBOT
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4866394453479546
 Transform:
   m_ObjectHideFlags: 1
@@ -111,8 +111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0caa61b18c3b71e4fb5821fc4eaf6c94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 2.5
-  gobj: {fileID: 0}
+  agentSpeed: 2.5
 --- !u!136 &136527513632934430
 CapsuleCollider:
   m_ObjectHideFlags: 1
