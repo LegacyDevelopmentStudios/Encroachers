@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 //using UnityEngine.Networking;
 
+[RequireComponent(typeof (Rigidbody))]
+[RequireComponent(typeof (CapsuleCollider))]
 public class PlayerMovement : Photon.MonoBehaviour {
 
     // ===== Public Vars
@@ -13,7 +15,6 @@ public class PlayerMovement : Photon.MonoBehaviour {
     public float dampFactor = 2.0f;
 
     public Camera   fpsCamera;
-
     public Text     debugText;
 
 
@@ -22,16 +23,13 @@ public class PlayerMovement : Photon.MonoBehaviour {
 
     private int     jumpState = 0;
 
-    private float   distToGround;
-    private float   rotY;
-    private float   maxSpeed;
-    private float   forceMult;
+    private float distToGround, rotY, forceMult, speedMaxNormal, speedMaxSprint;
     
 
     private Rigidbody   thisrb;
     private Collider    thiscldr;
     private CameraLook  camlook;
-
+    private RaycastHit  hitInfo;
     private Vector3     velDamp, input;
 
 	// Use this for initialization
@@ -45,6 +43,9 @@ public class PlayerMovement : Photon.MonoBehaviour {
         distToGround = thiscldr.bounds.extents.y;
         rotY = transform.rotation.eulerAngles.y;
 
+        speedMaxNormal = 15f;
+        speedMaxSprint = 30f;
+
         ToggleCursorState();
     }
 	
@@ -54,48 +55,52 @@ public class PlayerMovement : Photon.MonoBehaviour {
         //if (photonView.isMine == true)
         //{
 
-
+        // Toggle cursor state. This should be moved to a manager script or something.
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             ToggleCursorState();
         }
-        // Get input.
-        input.x = Input.GetAxis("Horizontal") * Time.deltaTime * speed * thisrb.mass * 5f;
-        input.y = 0f;
-        input.z = Input.GetAxis("Vertical") * Time.deltaTime * speed * thisrb.mass * 5f;
 
-        velDamp.x = -thisrb.velocity.x;
-        velDamp.y = -thisrb.velocity.y * 0.2f;
-        velDamp.z = -thisrb.velocity.z;
-
-        velDamp = new Vector3(-thisrb.velocity.x, -thisrb.velocity.y * 0.2f, -thisrb.velocity.z);
-
-        forceMult = ((speedMax - thisrb.velocity.magnitude) / speedMax);
-
-        if (input.magnitude > 0f || input.magnitude < 0f)
+        // Handle shift key, sprinting.
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             if (isOnGround == true)
             {
-                // Move the player.
-                //if (thisrb.velocity.magnitude < 12.0f)
-                //{
-                //    thisrb.AddRelativeForce(input * 2f, ForceMode.VelocityChange);
-                //}
+                speedMax = speedMaxSprint;
+            }
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            speedMax = speedMaxNormal;
+        }
+
+        // Get input.
+        GetInput();
+
+        /*======================================================================
+            Calculate a force multiplier based on velocity magnitude and
+            max speed.
+            This is used to control the force applied to the rigidbody
+            and ultimately to limit the player speed so that the velocity
+            doesn't continuously stack, gradually increasing the player
+            velocity beyond usable. */
+        forceMult = ((speedMax - thisrb.velocity.magnitude) / speedMax);
+        //======================================================================
+
+        if (input.magnitude > 0f || input.magnitude < 0f)
+        {
+            // Move the player.
+            if (isOnGround == true)
                 thisrb.AddRelativeForce(input * 2f * forceMult, ForceMode.VelocityChange);
-            }
             else
-            {
-                // Move the player.
-                //if (thisrb.velocity.magnitude < 12.0f)
-                //{
-                //    thisrb.AddRelativeForce(input, ForceMode.VelocityChange);
-                //}
                 thisrb.AddRelativeForce(input * forceMult, ForceMode.VelocityChange);
-            }
+
+            // Velocity dampening.
             thisrb.AddForce(velDamp * thisrb.mass * dampFactor * 0.5f);
         }
         else
         {
+            // Velocity dampening.
             thisrb.AddForce(velDamp * thisrb.mass * dampFactor);
         }
 
@@ -115,6 +120,9 @@ public class PlayerMovement : Photon.MonoBehaviour {
     }
 
 
+    /* ===================================================== *
+     *  -Temporary functions for debugging.-
+     * ----------------------------------------------------- */
     private string GetDebugText()
     {
         return "isOnGround: " + isOnGround.ToString() + NL() +
@@ -123,24 +131,30 @@ public class PlayerMovement : Photon.MonoBehaviour {
                 "RB Vel Mag: " + thisrb.velocity.magnitude.ToString() + NL() +
                 "input Mag: " + input.magnitude.ToString() + NL() +
                 "input: " + input.ToString() + NL() +
-                "velDamp Mag: " + velDamp.magnitude.ToString() + NL() +
                 "velDamp: " + velDamp.ToString() + NL() +
                 "percent: " + (forceMult * 100f).ToString() + "%";
     }
 
-    private string NL()
+    private string NL() { return "\n"; }
+    private string NL(int count)
     {
-        return "\n";
+        string r = "";
+        for (int i = 0; i < count; i++)
+            r += "\n";
+
+        return r;
     }
+    // -----------------------------------------------------
 
 
     /* ===================================================== *
      *  -This function handles jumping.-
-     *====================================================== */
+     * ----------------------------------------------------- */
     private void HandleJump()
     {
-
-        if (IsGrounded() == true)
+        // Test whether the player is touching a collider.
+        bool ig = IsGrounded();
+        if (ig == true)
         {
             isOnGround = true;
             jumpState = 0;
@@ -166,6 +180,18 @@ public class PlayerMovement : Photon.MonoBehaviour {
             case 2:
                 break;
         }
+        // -----------------------------------------------------
+
+        // If the player is off the ground without jumping then
+        // change states to jumped to avoid a second mid-air jump.
+        if (ig == false)
+        {
+            if (jumpState == 0 && isOnGround == true)
+            {
+                isOnGround = false;
+                jumpState = 1;
+            }
+        }
     }
 
     // Apply a force in the upward direction. aka Jump.
@@ -182,7 +208,25 @@ public class PlayerMovement : Photon.MonoBehaviour {
     // Cast a ray in the negative up direction to test if the player is on the ground.
     private bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f);
+        //return Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f);
+        return Physics.SphereCast(transform.position, 
+                                    thiscldr.bounds.extents.x, 
+                                    -Vector3.up, 
+                                    out hitInfo, 
+                                    distToGround * 0.75f);
+    }
+
+    // Store input.
+    private void GetInput()
+    {
+        float inputMult = Time.deltaTime * speed * thisrb.mass * 5f;
+        input = new Vector3(Input.GetAxis("Horizontal") * inputMult,
+                            0f,
+                            Input.GetAxis("Vertical") * inputMult);
+
+        velDamp = new Vector3(-thisrb.velocity.x,
+                            -(thisrb.velocity.y * 0.2f),
+                            -thisrb.velocity.z);
     }
 
      // Toggle the cursor visibility.

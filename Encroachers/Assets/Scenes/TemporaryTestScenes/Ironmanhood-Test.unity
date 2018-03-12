@@ -381,7 +381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   speedMax: 15
-  jumpForce: 7.5
+  jumpForce: 6
   dampFactor: 2
   fpsCamera: {fileID: 75391277}
   debugText: {fileID: 1604554880}
