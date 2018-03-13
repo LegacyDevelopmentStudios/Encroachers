@@ -6,21 +6,42 @@ public class ShootManager : MonoBehaviour{
 
     public Transform cam;
     public GameObject cube;
+
+    private float rateOfFire = 5f;
+    private float rofTime, rofCounter;
     
     public void Start() {
         cam = transform.GetChild(0);
+        rofTime = 1f / rateOfFire;
+        rofCounter = rofTime;
     }
 
     void Update () {
-		if(Input.GetMouseButtonDown(0)) {
-            Shoot();
+		if(Input.GetMouseButton(0)) {
+
+            if(CanFire()) { Shoot(); }
         }
 
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButton(1))
         {
-            ShootAlternate();
+            if(CanFire()) { ShootAlternate(); }
         }
+
+        if (Input.GetMouseButtonUp(0)
+         || Input.GetMouseButtonUp(1))
+            rofCounter = rofTime;
 	}
+
+    private bool CanFire()
+    {
+        rofCounter += Time.deltaTime;
+        if(rofCounter >= rofTime)
+        {
+            rofCounter = 0f;
+            return true;
+        }
+        return false;
+    }
     
     void Shoot() {
         RaycastHit hit;
@@ -47,8 +68,8 @@ public class ShootManager : MonoBehaviour{
         }
     }
 
-    void SpawnObject(Vector3 pos) {
-        GameObject go = GameObject.Instantiate(cube, pos, Quaternion.identity);
+    GameObject SpawnObject(Vector3 pos) {
+        return GameObject.Instantiate(cube, pos, Quaternion.identity);
     }
 
     GameObject SpawnEnemySpawner(Vector3 pos)

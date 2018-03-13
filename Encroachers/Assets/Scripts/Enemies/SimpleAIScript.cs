@@ -14,6 +14,29 @@ public class SimpleAIScript : MonoBehaviour
 
     private float lifeTime = 120f;
 
+    public float Lifetime
+    {
+        get
+        {
+            return lifeTime;
+        }
+        set
+        {
+            this.lifeTime = value;
+        }
+    }
+    public float Speed
+    {
+        get
+        {
+            return agentSpeed;
+        }
+        set
+        {
+            this.agentSpeed = value;
+        }
+    }
+
     //private PhotonPlayer[] plrList;
 
     //private PhotonPlayer target;
