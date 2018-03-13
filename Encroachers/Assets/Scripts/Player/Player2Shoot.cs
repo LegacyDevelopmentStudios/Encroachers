@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class Player2Shoot : MonoBehaviour 
 {
-
+	public GameObject enemySpawnPrefab;
 	public Camera cam;
-
 	void Update()
 	{
 		if(Input.GetMouseButton(0))

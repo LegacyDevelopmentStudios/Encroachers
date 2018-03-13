@@ -1,39 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 
 namespace Networking
 {
-	public class PlayerNetworking : MonoBehaviour 
+	public class PlayerNetworking : NetworkBehaviour 
 	{
-		[SerializeField] private GameObject playerCamera;
-		[SerializeField] private MonoBehaviour[] playerControlScripts;
+		public GameObject fpsCharacter;
+		public GameObject[] characterModel;
 
-		private PhotonView photonView;
-
-		private void Start()
+		public override void OnStartLocalPlayer()
 		{
-			photonView = GetComponent<PhotonView>();
+			GetComponent<PlayerMovement>().enabled = true;
+			fpsCharacter.SetActive(true);
 
-			Initialize();
-		}
-
-		private void Initialize()
-		{
-			if (photonView.isMine)
+			foreach(GameObject go in characterModel)
 			{
-
-			}
-
-			else
-			{
-				playerCamera.gameObject.SetActive(false);
-
-				foreach(MonoBehaviour m in playerControlScripts)
-				{
-					m.enabled = false;
-				}
+				go.SetActive(false);
 			}
 		}
 	}

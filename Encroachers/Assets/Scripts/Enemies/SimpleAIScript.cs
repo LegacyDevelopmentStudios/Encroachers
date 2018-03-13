@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Photon;
 
-public class SimpleAIScript : Photon.MonoBehaviour {
 
+public class SimpleAIScript : MonoBehaviour 
+{
+    
     public float agentSpeed = 2.5f;
 
     private GameObject plr;
@@ -47,20 +48,5 @@ public class SimpleAIScript : Photon.MonoBehaviour {
         {
             rb.AddForce(direction.normalized * Time.deltaTime * rb.mass * 10f, ForceMode.VelocityChange);
         }
-	}
-
-
-
-    //private PhotonPlayer GetClosestPlayer()
-    //{
-    //    PhotonPlayer closest;
-    //    float[] dist = new float[plrList.Length];
-
-    //    for (int i = 0; i < plrList.Length - 1; i++)
-    //    {
-    //        dist[i] = Vector3.Distance(transform.position, plrList[i].)
-    //    }
-
-    //    return closest;
-    //}
+    }
 }
