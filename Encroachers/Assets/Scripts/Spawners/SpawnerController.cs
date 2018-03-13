@@ -6,19 +6,17 @@ using Photon;
 
 public class SpawnerController : Photon.MonoBehaviour {
     // Public vars
-    public float lifeTime = 5f;
-    public float frequency = 0.95f;
-
-    public Text debugText;
+    public float lifeTime = 20f;
+    public float frequency = 2.95f;
 
     
 
     // Private vars
     private float freqCounter = 0f;
-    
 
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Start () {
 
 	}
 	
@@ -26,8 +24,6 @@ public class SpawnerController : Photon.MonoBehaviour {
 	void Update () {
         lifeTime -= Time.deltaTime;
         freqCounter += Time.deltaTime;
-
-        debugText.text = GetDebugString();
 
         if (freqCounter >= frequency)
         {
@@ -39,18 +35,7 @@ public class SpawnerController : Photon.MonoBehaviour {
 
         if (lifeTime <= 0f)
         {
-            debugText.text = "";
             Destroy(gameObject);
         }
 	}
-
-
-
-    private string GetDebugString()
-    {
-        return "lifeTime: " + lifeTime.ToString() + NL() + 
-                "freqCounter: " + freqCounter.ToString();
-    }
-
-    private string NL() { return "\n"; }
 }

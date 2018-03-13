@@ -17,7 +17,6 @@ public class PlayerMovement : Photon.MonoBehaviour {
     public Camera   fpsCamera;
     public Text     debugText;
 
-
     // ===== Private Vars
     private bool    isOnGround = true;
 
@@ -47,10 +46,19 @@ public class PlayerMovement : Photon.MonoBehaviour {
         speedMaxSprint = 30f;
 
         ToggleCursorState();
+
+        debugText.text = "";
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Use this for GUI stuff
+    private void OnGUI()
+    {
+        int size = (int)(Screen.height * 0.0075f);
+        GUI.Box(new Rect(Screen.width / 2, Screen.height / 2, size, size), "");
+    }
+
+    // Update is called once per frame
+    void Update ()
     {
         //if (photonView.isMine == true)
         //{
@@ -113,7 +121,7 @@ public class PlayerMovement : Photon.MonoBehaviour {
 
         HandleJump();
 
-        debugText.text = GetDebugText();
+        //debugText.text = GetDebugText();
 
 
         //}

@@ -15,13 +15,35 @@ public class ShootManager : MonoBehaviour{
 		if(Input.GetMouseButtonDown(0)) {
             Shoot();
         }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            ShootAlternate();
+        }
 	}
     
     void Shoot() {
         RaycastHit hit;
         Debug.DrawLine(cam.position, cam.forward * 100, Color.red, 3f);
         if (Physics.Raycast(cam.position, cam.forward, out hit)) {
-            SpawnObject(hit.point);
+            //SpawnObject(hit.point);
+            if (hit.transform.tag == "Enemy")
+            {
+                Destroy(hit.transform.gameObject);
+            }
+        }
+    }
+
+    private void ShootAlternate()
+    {
+        RaycastHit hit;
+        Debug.DrawLine(cam.position, cam.forward * 100, Color.red, 3f);
+        if (Physics.Raycast(cam.position, cam.forward, out hit))
+        {
+            if (hit.transform.tag != "Enemy")
+            {
+                SpawnEnemySpawner(hit.point);
+            }
         }
     }
 
@@ -29,4 +51,8 @@ public class ShootManager : MonoBehaviour{
         GameObject go = GameObject.Instantiate(cube, pos, Quaternion.identity);
     }
 
+    GameObject SpawnEnemySpawner(Vector3 pos)
+    {
+        return GameObject.Instantiate(Resources.Load<GameObject>("TestSpawner"), pos, Quaternion.identity);
+    }
 }
