@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Photon;
 
-public class SpawnerController : Photon.MonoBehaviour {
+public class SpawnerController : MonoBehaviour {
     // Public vars
     public float lifeTime = 20f;
     public float frequency = 2.95f;

@@ -7,41 +7,28 @@ public class ShootManager : MonoBehaviour{
     public Transform cam;
     public GameObject cube;
 
-    private float rateOfFire = 5f;
-    private float rofTime, rofCounter;
+    private ROFLimiter weap1, weap2;
     
     public void Start() {
         cam = transform.GetChild(0);
-        rofTime = 1f / rateOfFire;
-        rofCounter = rofTime;
+        
+        weap1 = gameObject.AddComponent(typeof(ROFLimiter)) as ROFLimiter;
+        weap2 = gameObject.AddComponent(typeof(ROFLimiter)) as ROFLimiter;
+        
+        weap1.FiresPerSecond = 10f;
+        weap2.FiresPerSecond = 5f;
     }
 
     void Update () {
-		if(Input.GetMouseButton(0)) {
-
-            if(CanFire()) { Shoot(); }
-        }
-
-        if (Input.GetMouseButton(1))
+        if (weap1.CanFire(Input.GetMouseButton(0)))
         {
-            if(CanFire()) { ShootAlternate(); }
+            Shoot();
         }
-
-        if (Input.GetMouseButtonUp(0)
-         || Input.GetMouseButtonUp(1))
-            rofCounter = rofTime;
+        if (weap2.CanFire(Input.GetMouseButton(1)))
+        {
+            ShootAlternate();
+        }
 	}
-
-    private bool CanFire()
-    {
-        rofCounter += Time.deltaTime;
-        if(rofCounter >= rofTime)
-        {
-            rofCounter = 0f;
-            return true;
-        }
-        return false;
-    }
     
     void Shoot() {
         RaycastHit hit;

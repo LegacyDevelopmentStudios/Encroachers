@@ -2,40 +2,81 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.UI;
-//using UnityEngine.Networking;
+// using UnityEngine.UI;
+
 
 [RequireComponent(typeof (Rigidbody))]
 [RequireComponent(typeof (CapsuleCollider))]
+// public class PlayerMovement : MonoBehaviour {
 public class PlayerMovement : NetworkBehaviour {
 
-    // ===== Public Vars
-    public float speed      = 10.0f;
-    public float speedMax   = 15.0f;
-    public float jumpForce  = 5.0f;
-    public float dampFactor = 2.0f;
 
+    // ===== Public Vars
+    [Tooltip("This controls how responsive movement feels.")]
+    [Range(5f,100f)]
+    public float responsiveness     = 40.0f;
+
+    [Tooltip("The number of meters high the player jumps.")]
+    public float jumpHeight         = 1.5f;
+
+    [Space(10)]
+    [Header("Speed")]
+
+    [Tooltip("This limits the speed of the player.")]
+    public float speedMax           = 12f;
+
+    [Tooltip("This limits the maximum normal speed.")]
+    public float speedMaxNormal     = 12f;
+
+    [Tooltip("This limits the maximum speed of sprinting..")]
+    public float speedMaxSprint     = 24f;
+
+    [Space(10)]
+    [Header("Dampening")]
+
+    [Range(0f,10f)]
+    [Tooltip("This affects all dampening.")]
+    public float dampFactor         = 2.0f;
+
+    [Range(0f,5f)]
+    [Tooltip("This affects horizontal movement. Moving forward, backward, strafe.")]
+    public float dampMultHorizontal = 1.0f;
+
+    [Range(0f,10f)]
+    [Tooltip("This affects vertical movement. Jumping, falling.")]
+    public float dampMultVertical   = 0.01f;
+
+    [Space(10)]
+
+    [Tooltip("This is the first person camera.")]
     public Camera   fpsCamera;
-    public Text     debugText;
+
+
+
+    // public Text     debugText;
 
     // ===== Private Vars
-    private bool    isOnGround = true;
+    private enum JumpStates{
+        ground = 0,
+        jumpedOnce = 1,
+        jumpedTwice = 2
+    };
+    private JumpStates jumpState = JumpStates.ground;
+    private float jumpForce;
 
-    private int     jumpState = 0;
+    private bool isOnGround = true;
 
-    private float distToGround, rotY, forceMult, speedMaxNormal, speedMaxSprint;
+    private float distToGround, rotY, forceMult;
     
 
-    private Rigidbody   thisrb;
-    private Collider    thiscldr;
-    private CameraLook  camlook;
-    private RaycastHit  hitInfo;
-    private Vector3     velDamp, input;
+    private Rigidbody thisrb;
+    private Collider thiscldr;
+    private CameraLook camlook;
+    private RaycastHit hitInfo;
+    private Vector3 velDamp, input;
 
 	// Use this for initialization
 	void Start () {
-        //enabled = photonView.isMine;
-
         thisrb = GetComponent<Rigidbody>();
         thiscldr = GetComponent<Collider>();
         camlook = fpsCamera.GetComponent<CameraLook>();
@@ -43,12 +84,11 @@ public class PlayerMovement : NetworkBehaviour {
         distToGround = thiscldr.bounds.extents.y;
         rotY = transform.rotation.eulerAngles.y;
 
-        speedMaxNormal = 15f;
-        speedMaxSprint = 30f;
+        jumpForce = GetJumpForce(jumpHeight, Physics.gravity.y);
 
         ToggleCursorState();
 
-        debugText.text = "";
+        // debugText.text = "";
     }
 
     // Use this for GUI stuff
@@ -61,15 +101,12 @@ public class PlayerMovement : NetworkBehaviour {
     // Update is called once per frame
     void Update ()
     {
-
         if(!isLocalPlayer)
         {
             fpsCamera.enabled = false;
             return;
         }
-        //if (photonView.isMine == true)
-        //{
-
+        
         // Toggle cursor state. This should be moved to a manager script or something.
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -92,26 +129,30 @@ public class PlayerMovement : NetworkBehaviour {
         // Get input.
         GetInput();
 
-        /*======================================================================
-            Calculate a force multiplier based on velocity magnitude and
-            max speed.
-            This is used to control the force applied to the rigidbody
-            and ultimately to limit the player speed so that the velocity
-            doesn't continuously stack, gradually increasing the player
-            velocity beyond usable. */
-        forceMult = ((speedMax - thisrb.velocity.magnitude) / speedMax);
+        //======================================================================
+        //    Calculate a force multiplier based on velocity magnitude and
+        //    max speed.
+        //    This is used to control the force applied to the rigidbody
+        //    and ultimately to limit the player speed so that the velocity
+        //    doesn't continuously stack, gradually increasing the player
+        //    velocity beyond usable.
+        forceMult = Mathf.Clamp( ((speedMax - thisrb.velocity.magnitude) / speedMax), 0f, 1f);
         //======================================================================
 
         if (input.magnitude > 0f || input.magnitude < 0f)
         {
-            // Move the player.
-            if (isOnGround == true)
-                thisrb.AddRelativeForce(input * 2f * forceMult, ForceMode.VelocityChange);
-            else
-                thisrb.AddRelativeForce(input * forceMult, ForceMode.VelocityChange);
+                // Move the player.
+                if (isOnGround == true)
+                {
+                    thisrb.AddRelativeForce(input * 2f * forceMult, ForceMode.VelocityChange);
+                }
+                else
+                {
+                    thisrb.AddRelativeForce(input * forceMult, ForceMode.VelocityChange);
+                }
 
-            // Velocity dampening.
-            thisrb.AddForce(velDamp * thisrb.mass * dampFactor * 0.5f);
+                // Velocity dampening.
+                thisrb.AddForce(velDamp * thisrb.mass * dampFactor * 0.5f);
         }
         else
         {
@@ -128,37 +169,30 @@ public class PlayerMovement : NetworkBehaviour {
 
         HandleJump();
 
-        //debugText.text = GetDebugText();
-
-
-        //}
+        // debugText.text = GetDebugText();
     }
 
 
     /* ===================================================== *
      *  -Temporary functions for debugging.-
      * ----------------------------------------------------- */
-    private string GetDebugText()
-    {
-        return "isOnGround: " + isOnGround.ToString() + NL() +
-                "jumpState: " + jumpState.ToString() + NL() +
-                "IsGrounded: " + IsGrounded().ToString() + NL() +
-                "RB Vel Mag: " + thisrb.velocity.magnitude.ToString() + NL() +
-                "input Mag: " + input.magnitude.ToString() + NL() +
-                "input: " + input.ToString() + NL() +
-                "velDamp: " + velDamp.ToString() + NL() +
-                "percent: " + (forceMult * 100f).ToString() + "%";
-    }
-
-    private string NL() { return "\n"; }
-    private string NL(int count)
-    {
-        string r = "";
-        for (int i = 0; i < count; i++)
-            r += "\n";
-
-        return r;
-    }
+    // private string GetDebugText()
+    // {
+    //     return "isOnGround: " + isOnGround.ToString() + "\n" +
+    //             "jumpState: " + jumpState.ToString() + "\n" +
+    //             "IsGrounded: " + IsGrounded().ToString() + "\n" +
+    //             "RB Vel Mag: " + thisrb.velocity.magnitude.ToString() + "\n" +
+    //             "RB Vel: " + thisrb.velocity.ToString() + "\n" +
+    //             "RB mass: " + thisrb.mass.ToString() + "\n" +
+    //             "input Mag: " + input.magnitude.ToString() + "\n" +
+    //             "input: " + input.ToString() + "\n" +
+    //             "velDamp: " + velDamp.ToString() + "\n" +
+    //             "percent: " + (forceMult * 100f).ToString() + "%" + "\n" +
+    //             "position: " + transform.position.ToString() + "\n" +
+    //             "gravity: " + Physics.gravity.ToString() + "\n" +
+    //             "jump force: " + jumpForce.ToString() + "\n" +
+    //             "jump distance: " + (transform.position.y - 1.2f).ToString();
+    // }
     // -----------------------------------------------------
 
 
@@ -172,27 +206,27 @@ public class PlayerMovement : NetworkBehaviour {
         if (ig == true)
         {
             isOnGround = true;
-            jumpState = 0;
+            jumpState = JumpStates.ground;
         }
 
         switch (jumpState)
         {
-            case 0:
+            case JumpStates.ground:
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    Jump(jumpForce, input.normalized);
-                    jumpState = 1;
+                    Jump(jumpHeight, input.normalized);
+                    jumpState = JumpStates.jumpedOnce;
                     isOnGround = false;
                 }
                 break;
-            case 1:
+            case JumpStates.jumpedOnce:
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    Jump(jumpForce, input.normalized);
-                    jumpState = 2;
+                    Jump(jumpHeight, input.normalized);
+                    jumpState = JumpStates.jumpedTwice;
                 }
                 break;
-            case 2:
+            case JumpStates.jumpedTwice:
                 break;
         }
         // -----------------------------------------------------
@@ -204,20 +238,23 @@ public class PlayerMovement : NetworkBehaviour {
             if (jumpState == 0 && isOnGround == true)
             {
                 isOnGround = false;
-                jumpState = 1;
+                jumpState = JumpStates.jumpedOnce;
             }
         }
     }
 
     // Apply a force in the upward direction. aka Jump.
-    //private void Jump()
-    //{
-    //    thisrb.AddForce(transform.up * jumpForce * 10.0f, ForceMode.Impulse);
-    //}
-    void Jump(float jumpHeight, Vector3 movement)
+    private void Jump(float jumpHeight, Vector3 movement)
     {
-        // Add an Impulse force to the Rigidbody´s transform (direction up) and multiply it by the jumpHeight float.
-        thisrb.AddForce(transform.TransformDirection(new Vector3(movement.x * 0.1f, 1f, movement.z * 0.1f)) * jumpHeight, ForceMode.Impulse);
+        thisrb.AddForce(transform.TransformDirection(new Vector3(movement.x, jumpForce, movement.z)), ForceMode.Impulse);
+    }
+
+    private float GetJumpForce(float _meters_, float _gravity_)
+    {
+        float two = 2f * _gravity_;
+        float b = -(two * _meters_);
+        float ret = Mathf.Sqrt(b);
+        return ret;
     }
 
     // Cast a ray in the negative up direction to test if the player is on the ground.
@@ -234,14 +271,15 @@ public class PlayerMovement : NetworkBehaviour {
     // Store input.
     private void GetInput()
     {
-        float inputMult = Time.deltaTime * speed * thisrb.mass * 5f;
-        input = new Vector3(Input.GetAxis("Horizontal") * inputMult,
-                            0f,
-                            Input.GetAxis("Vertical") * inputMult);
-
-        velDamp = new Vector3(-thisrb.velocity.x,
-                            -(thisrb.velocity.y * 0.2f),
-                            -thisrb.velocity.z);
+        float inputMult = Time.deltaTime * thisrb.mass * responsiveness;
+        
+        input.x = Input.GetAxis("Horizontal") * inputMult;
+        input.y = 0f;
+        input.z = Input.GetAxis("Vertical") * inputMult;
+                            
+        velDamp.x = -(thisrb.velocity.x * dampMultHorizontal);
+        velDamp.y = -(thisrb.velocity.y * dampMultVertical);
+        velDamp.z = -(thisrb.velocity.z * dampMultHorizontal);
     }
 
      // Toggle the cursor visibility.

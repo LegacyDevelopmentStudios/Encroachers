@@ -309,12 +309,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fbea61c8958b7c4e8b3a4cdb1c1bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  speedMax: 15
-  jumpForce: 6
+  responsiveness: 40
+  jumpHeight: 1.5
+  speedMax: 12
+  speedMaxNormal: 12
+  speedMaxSprint: 24
   dampFactor: 2
+  dampMultHorizontal: 1
+  dampMultVertical: 0.01
   fpsCamera: {fileID: 75391277}
-  debugText: {fileID: 1604554880}
 --- !u!54 &116695638
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -776,7 +779,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'New Text
+  m_Text: 'Temporary Debug Text
 
 '
 --- !u!222 &1604554881
