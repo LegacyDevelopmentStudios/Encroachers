@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 //using UnityEngine.Networking;
 
 [RequireComponent(typeof (Rigidbody))]
 [RequireComponent(typeof (CapsuleCollider))]
-public class PlayerMovement : Photon.MonoBehaviour {
+public class PlayerMovement : NetworkBehaviour {
 
     // ===== Public Vars
     public float speed      = 10.0f;
@@ -60,6 +61,12 @@ public class PlayerMovement : Photon.MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
+
+        if(!isLocalPlayer)
+        {
+            fpsCamera.enabled = false;
+            return;
+        }
         //if (photonView.isMine == true)
         //{
 

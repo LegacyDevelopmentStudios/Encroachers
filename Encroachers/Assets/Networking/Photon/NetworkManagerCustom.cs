@@ -10,6 +10,8 @@ namespace LGDS
 {
 	public class NetworkManagerCustom : NetworkManager {
 
+		public Canvas mainMenu;
+
 		private string ipAdress;
 		private int port = 7777;
 		public Text textConnectionInfo;
