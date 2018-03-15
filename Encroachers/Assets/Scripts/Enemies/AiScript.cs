@@ -2,62 +2,65 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Networking;
 
-[RequireComponent(typeof(NavMeshAgent))]
-public class AiScript : MonoBehaviour 
+public class AiScript : NetworkBehaviour 
 {
-	private GameObject player;
-	private float agentLifeTime = 300f;
-	private float agentSpeed = 2.5f;
-
 	private NavMeshAgent agent;
-	private bool doCountdown = false;
-
-    public float Lifetime
-    {
-        get
-        {
-            return agentLifeTime;
-        }
-        set
-        {
-            this.agentLifeTime = value;
-			if (this.doCountdown == false) { this.doCountdown = true; }
-        }
-    }
-    public float Speed
-    {
-        get
-        {
-            return agentSpeed;
-        }
-        set
-        {
-            this.agentSpeed = value;
-			this.GetComponent<NavMeshAgent>().speed = value;
-        }
-    }
+	private Transform myTransform;
+	private Transform targetTransform;
+	private LayerMask raycastLayer;
+	private float radius = 100;
 
 	void Start()
 	{
 		agent = GetComponent<NavMeshAgent>();
-		agent.speed = agentSpeed;
-		player = GameObject.FindGameObjectWithTag("Player");
+		myTransform = transform;
+		raycastLayer = 1<<LayerMask.NameToLayer("Player");
 	}
-
-	void Update()
+	void FixedUpdate()
 	{
-		if (doCountdown == true)
+		SearchForTarget();
+		MoveToTarget();
+	}
+	
+	void SearchForTarget()
+	{
+		if(!isServer)
 		{
-			agentLifeTime -= Time.deltaTime;
-
-			if (agentLifeTime <= 0f)
+			return;
+		}
+		if(targetTransform == null)
+		{
+			Collider[] hitColliders = Physics.OverlapSphere(myTransform.position, radius, raycastLayer);
+			
+			if(hitColliders.Length>0)
 			{
-				Destroy(gameObject);
-				return;
+				int randomint = Random.Range(0, hitColliders.Length);
+				targetTransform = hitColliders[randomint].transform;
 			}
 		}
-		
-		agent.SetDestination(player.transform.position);
+
+		if(targetTransform != null && targetTransform.GetComponent<BoxCollider>().enabled == false)
+		{
+			targetTransform = null;
+		}
+
 	}
+
+	void MoveToTarget()
+	{
+		if(targetTransform != null && isServer)
+		{
+			SetNavDestination(targetTransform);
+		}
+	}
+
+	void SetNavDestination(Transform dest)
+	{
+		agent.SetDestination(dest.position);
+	}
+
+    
+    
 }

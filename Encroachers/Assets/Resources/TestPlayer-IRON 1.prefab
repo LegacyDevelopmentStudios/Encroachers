@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 223038961119628754}
   - component: {fileID: 114629655419970186}
   - component: {fileID: 114434342841829526}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38,6 +38,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4755423126597366}
   - component: {fileID: 33391624499645724}
+  - component: {fileID: 65189766084792338}
   - component: {fileID: 136017523732011192}
   - component: {fileID: 23229769246948634}
   - component: {fileID: 54674013998710532}
@@ -45,7 +46,7 @@ GameObject:
   - component: {fileID: 114246914487609456}
   - component: {fileID: 114339933883892832}
   - component: {fileID: 114895868905762476}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TestPlayer-IRON 1
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -62,7 +63,7 @@ GameObject:
   - component: {fileID: 224186822610767810}
   - component: {fileID: 222207725505242120}
   - component: {fileID: 114077335719524598}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -81,7 +82,7 @@ GameObject:
   - component: {fileID: 124675697304722880}
   - component: {fileID: 81226740667149744}
   - component: {fileID: 114545829525045206}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98,7 +99,7 @@ GameObject:
   - component: {fileID: 4369081257051912}
   - component: {fileID: 114309247369710908}
   - component: {fileID: 114002015481428728}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EventSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -238,6 +239,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!65 &65189766084792338
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1041454982620886}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!81 &81226740667149744
 AudioListener:
   m_ObjectHideFlags: 1
@@ -438,12 +451,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fbea61c8958b7c4e8b3a4cdb1c1bd8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  responsiveness: 40
+  jumpHeight: 1.5
   speedMax: 15
-  jumpForce: 6
+  speedMaxNormal: 12
+  speedMaxSprint: 24
   dampFactor: 2
+  dampMultHorizontal: 1
+  dampMultVertical: 0.01
   fpsCamera: {fileID: 20409621978023672}
-  debugText: {fileID: 114077335719524598}
 --- !u!124 &124675697304722880
 Behaviour:
   m_ObjectHideFlags: 1

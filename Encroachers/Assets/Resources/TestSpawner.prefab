@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33529506946886478}
   - component: {fileID: 23390833552356202}
   - component: {fileID: 114626951794967492}
+  - component: {fileID: 114470465972858672}
   m_Layer: 0
   m_Name: TestSpawner
   m_TagString: Spawner
@@ -83,6 +84,38 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1701093014601458}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &114470465972858672
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1701093014601458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 236
+    i1: 8
+    i2: 45
+    i3: 151
+    i4: 44
+    i5: 226
+    i6: 84
+    i7: 180
+    i8: 122
+    i9: 183
+    i10: 1
+    i11: 20
+    i12: 59
+    i13: 182
+    i14: 67
+    i15: 142
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!114 &114626951794967492
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -96,3 +129,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lifeTime: 20
   frequency: 2.95
+  aiPrefab: {fileID: 1625472951885950, guid: 6928e0dce8864d64ab1cb68e053a1291, type: 2}

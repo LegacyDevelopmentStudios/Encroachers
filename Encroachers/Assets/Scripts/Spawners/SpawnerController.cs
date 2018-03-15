@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class SpawnerController : MonoBehaviour {
+public class SpawnerController : NetworkBehaviour {
     // Public vars
     public float lifeTime = 20f;
     public float frequency = 2.95f;
+    [SerializeField] private GameObject aiPrefab;
 
     
 
@@ -28,10 +30,9 @@ public class SpawnerController : MonoBehaviour {
             freqCounter = 0f;
             // instantiate enemy
             Vector3 newV = new Vector3(0f, 0.8f, 0f);
-            GameObject faggot = (GameObject)Instantiate(Resources.Load("EnemyBOTAI"), transform.position + newV, Quaternion.identity);
-            AiScript ais = faggot.GetComponent<AiScript>();
-            ais.Lifetime = 10f;
-            ais.Speed = 5f;
+            GameObject go = GameObject.Instantiate(aiPrefab, transform.position, Quaternion.identity) as GameObject;
+            NetworkServer.Spawn(go);
+
         }
 	}
 }

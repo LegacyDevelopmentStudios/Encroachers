@@ -24,6 +24,8 @@ GameObject:
   - component: {fileID: 114912225343569510}
   - component: {fileID: 195554820912304226}
   - component: {fileID: 23031014874086904}
+  - component: {fileID: 114558479925586100}
+  - component: {fileID: 114792045109204576}
   m_Layer: 0
   m_Name: TestEnemy
   m_TagString: Untagged
@@ -97,6 +99,59 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114558479925586100
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1625472951885950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 105
+    i1: 40
+    i2: 224
+    i3: 220
+    i4: 232
+    i5: 134
+    i6: 77
+    i7: 100
+    i8: 171
+    i9: 28
+    i10: 182
+    i11: 142
+    i12: 5
+    i13: 58
+    i14: 18
+    i15: 145
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
+--- !u!114 &114792045109204576
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1625472951885950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 1
+  m_SendInterval: 0.1
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.001
+  m_VelocityThreshold: 0.0001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 1
 --- !u!114 &114912225343569510
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -108,9 +163,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6b2b33b09f47444da9b5ee6bc94e6e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1041454982620886, guid: f8a304002f18f65419dd7c54da47106d, type: 2}
-  agentLifeTime: 120
-  agentSpeed: 2
 --- !u!195 &195554820912304226
 NavMeshAgent:
   m_ObjectHideFlags: 1
