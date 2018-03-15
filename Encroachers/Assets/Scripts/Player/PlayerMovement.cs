@@ -2,60 +2,50 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-// using UnityEngine.UI;
+using UnityEngine.UI;
 
 
 [RequireComponent(typeof (Rigidbody))]
 [RequireComponent(typeof (CapsuleCollider))]
 // public class PlayerMovement : MonoBehaviour {
 public class PlayerMovement : NetworkBehaviour {
+    
+    public Text txt;
 
-
-    // ===== Public Vars
     [Tooltip("This controls how responsive movement feels.")]
     [Range(5f,100f)]
-    public float responsiveness     = 40.0f;
+    [SerializeField] private float responsiveness     = 42.0f;
 
     [Tooltip("The number of meters high the player jumps.")]
-    public float jumpHeight         = 1.5f;
+    [SerializeField] private float jumpHeight         = 1.6f;
 
-    [Space(10)]
+
     [Header("Speed")]
 
     [Tooltip("This limits the speed of the player.")]
-    public float speedMax           = 12f;
+    [SerializeField] private float speedMax           = 13f;
 
     [Tooltip("This limits the maximum normal speed.")]
-    public float speedMaxNormal     = 12f;
+    [SerializeField] private float speedMaxNormal     = 13f;
 
     [Tooltip("This limits the maximum speed of sprinting..")]
-    public float speedMaxSprint     = 24f;
+    [SerializeField] private float speedMaxSprint     = 26f;
 
-    [Space(10)]
+
     [Header("Dampening")]
 
     [Range(0f,10f)]
     [Tooltip("This affects all dampening.")]
-    public float dampFactor         = 2.0f;
+    [SerializeField] private float dampFactor         = 1.8f;
 
-    [Range(0f,5f)]
+    [Range(0f,10f)]
     [Tooltip("This affects horizontal movement. Moving forward, backward, strafe.")]
-    public float dampMultHorizontal = 1.0f;
+    [SerializeField] private float dampMultHorizontal = 1.0f;
 
     [Range(0f,10f)]
     [Tooltip("This affects vertical movement. Jumping, falling.")]
-    public float dampMultVertical   = 0.01f;
+    [SerializeField] private float dampMultVertical   = 0.01f;
 
-    [Space(10)]
-
-    [Tooltip("This is the first person camera.")]
-    public Camera   fpsCamera;
-
-
-
-    // public Text     debugText;
-
-    // ===== Private Vars
     private enum JumpStates{
         ground = 0,
         jumpedOnce = 1,
@@ -64,31 +54,28 @@ public class PlayerMovement : NetworkBehaviour {
     private JumpStates jumpState = JumpStates.ground;
     private float jumpForce;
 
-    private bool isOnGround = true;
+    private bool isOnGround = true, stopUpdate = false;
 
-    private float distToGround, rotY, forceMult;
+    private float distToGround, forceMult;
     
 
+    private Camera fpsCamera;
     private Rigidbody thisrb;
     private Collider thiscldr;
-    private CameraLook camlook;
     private RaycastHit hitInfo;
     private Vector3 velDamp, input;
 
 	// Use this for initialization
 	void Start () {
+        fpsCamera = GameObject.FindWithTag("FPS-Cam").GetComponent<Camera>();
         thisrb = GetComponent<Rigidbody>();
         thiscldr = GetComponent<Collider>();
-        camlook = fpsCamera.GetComponent<CameraLook>();
 
         distToGround = thiscldr.bounds.extents.y;
-        rotY = transform.rotation.eulerAngles.y;
 
         jumpForce = GetJumpForce(jumpHeight, Physics.gravity.y);
 
         ToggleCursorState();
-
-        // debugText.text = "";
     }
 
     // Use this for GUI stuff
@@ -125,20 +112,29 @@ public class PlayerMovement : NetworkBehaviour {
         {
             speedMax = speedMaxNormal;
         }
-
-        // Get input.
+        
+        // ========
         GetInput();
+        // ========
 
         //======================================================================
-        //    Calculate a force multiplier based on velocity magnitude and
-        //    max speed.
-        //    This is used to control the force applied to the rigidbody
-        //    and ultimately to limit the player speed so that the velocity
-        //    doesn't continuously stack, gradually increasing the player
-        //    velocity beyond usable.
+        //    Calculate a force multiplier based on velocity magnitude and max speed.
+        //    This is used to control the force applied to the rigidbody and ultimately
+        //    to limit the player speed so that the velocity doesn't continuously 
+        //    stack, gradually increasing the player velocity beyond usable.
         forceMult = Mathf.Clamp( ((speedMax - thisrb.velocity.magnitude) / speedMax), 0f, 1f);
         //======================================================================
 
+        // ==========
+        HandleJump();
+        // ==========
+
+        // txt.text = GetDebugText();
+    }
+
+
+    void FixedUpdate()
+    {
         if (input.magnitude > 0f || input.magnitude < 0f)
         {
                 // Move the player.
@@ -156,44 +152,53 @@ public class PlayerMovement : NetworkBehaviour {
         }
         else
         {
-            // Velocity dampening.
-            thisrb.AddForce(velDamp * thisrb.mass * dampFactor);
+            if (thisrb.velocity.magnitude > 0.05f)
+            {
+                // Velocity dampening.
+                thisrb.AddForce(velDamp * thisrb.mass * dampFactor);
+            }
         }
-
-
-
-        // Rotate the player on the Y euler axis.
-        rotY += Input.GetAxis("Mouse X") * camlook.mouseSensitivity * Time.deltaTime;
-        Quaternion localRotation = Quaternion.Euler(0.0f, rotY, 0.0f);
-        transform.rotation = localRotation;
-
-        HandleJump();
-
-        // debugText.text = GetDebugText();
     }
 
 
-    /* ===================================================== *
-     *  -Temporary functions for debugging.-
-     * ----------------------------------------------------- */
     // private string GetDebugText()
     // {
-    //     return "isOnGround: " + isOnGround.ToString() + "\n" +
-    //             "jumpState: " + jumpState.ToString() + "\n" +
-    //             "IsGrounded: " + IsGrounded().ToString() + "\n" +
-    //             "RB Vel Mag: " + thisrb.velocity.magnitude.ToString() + "\n" +
+    //     return "Input: " + input.ToString() + "\n" +
     //             "RB Vel: " + thisrb.velocity.ToString() + "\n" +
-    //             "RB mass: " + thisrb.mass.ToString() + "\n" +
-    //             "input Mag: " + input.magnitude.ToString() + "\n" +
-    //             "input: " + input.ToString() + "\n" +
-    //             "velDamp: " + velDamp.ToString() + "\n" +
-    //             "percent: " + (forceMult * 100f).ToString() + "%" + "\n" +
-    //             "position: " + transform.position.ToString() + "\n" +
-    //             "gravity: " + Physics.gravity.ToString() + "\n" +
-    //             "jump force: " + jumpForce.ToString() + "\n" +
-    //             "jump distance: " + (transform.position.y - 1.2f).ToString();
+    //             "RB MAG: " + thisrb.velocity.magnitude.ToString();
+                
     // }
-    // -----------------------------------------------------
+
+    /// <summary>
+	/// This sets the dampening properties to the given parameters. All properties are clamped between 0f and 10f.
+    /// <para/>"overall" affects all dampening.
+    /// <para/>"hori" affects dampening on the x and z axis.
+    /// <para/>"vert" affects dempening on the y axis.
+	/// </summary>
+    public void SetDampeningProperties(float overall, float hori, float vert)
+    {
+        dampFactor = Mathf.Clamp(overall, 0f, 10f);
+        dampMultHorizontal = Mathf.Clamp(hori, 0f, 10f);
+        dampMultVertical = Mathf.Clamp(vert, 0f, 10f);
+    }
+
+
+    /// <summary>
+	/// This sets the dampening properties to the given parameters. All properties are clamped between 0f and 100f.
+    /// <para/>"max" affects all dampening.
+    /// <para/>"maxNormal" affects dampening on the x and z axis.
+    /// <para/>"maxSprint" affects dempening on the y axis.
+	/// </summary>
+    public void SetMaxSpeedProperties(float normal, float sprint)
+    {
+        speedMaxNormal = Mathf.Clamp(normal, 0f, 100f);
+        speedMaxSprint = Mathf.Clamp(sprint, 0f, 100f);
+    }
+
+
+
+
+
 
 
     /* ===================================================== *
@@ -214,7 +219,7 @@ public class PlayerMovement : NetworkBehaviour {
             case JumpStates.ground:
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    Jump(jumpHeight, input.normalized);
+                    Jump(jumpForce, input.normalized);
                     jumpState = JumpStates.jumpedOnce;
                     isOnGround = false;
                 }
@@ -222,7 +227,7 @@ public class PlayerMovement : NetworkBehaviour {
             case JumpStates.jumpedOnce:
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    Jump(jumpHeight, input.normalized);
+                    Jump(jumpForce, input.normalized);
                     jumpState = JumpStates.jumpedTwice;
                 }
                 break;
@@ -243,30 +248,34 @@ public class PlayerMovement : NetworkBehaviour {
         }
     }
 
+
+
+
+
     // Apply a force in the upward direction. aka Jump.
-    private void Jump(float jumpHeight, Vector3 movement)
+    private void Jump(float force, Vector3 movement)
     {
-        thisrb.AddForce(transform.TransformDirection(new Vector3(movement.x, jumpForce, movement.z)), ForceMode.Impulse);
+        thisrb.AddForce(transform.TransformDirection(new Vector3(movement.x, force, movement.z)), ForceMode.Impulse);
     }
 
+
+
+    // This returns a force in m/s to use in RB.AddForce(retVal, ForceMode.Impulse) to jump to a certain height in meters.
     private float GetJumpForce(float _meters_, float _gravity_)
     {
-        float two = 2f * _gravity_;
-        float b = -(two * _meters_);
-        float ret = Mathf.Sqrt(b);
-        return ret;
+        return Mathf.Sqrt(-(2f * _gravity_ * _meters_));
     }
+
+
 
     // Cast a ray in the negative up direction to test if the player is on the ground.
     private bool IsGrounded()
     {
         //return Physics.Raycast(transform.position, -Vector3.up, distToGround + 0.1f);
-        return Physics.SphereCast(transform.position, 
-                                    thiscldr.bounds.extents.x, 
-                                    -Vector3.up, 
-                                    out hitInfo, 
-                                    distToGround * 0.75f);
+        return Physics.SphereCast(transform.position, thiscldr.bounds.extents.x,  -Vector3.up,  out hitInfo, distToGround * 0.75f);
     }
+
+
 
     // Store input.
     private void GetInput()
@@ -281,6 +290,8 @@ public class PlayerMovement : NetworkBehaviour {
         velDamp.y = -(thisrb.velocity.y * dampMultVertical);
         velDamp.z = -(thisrb.velocity.z * dampMultHorizontal);
     }
+
+
 
      // Toggle the cursor visibility.
      private void ToggleCursorState()

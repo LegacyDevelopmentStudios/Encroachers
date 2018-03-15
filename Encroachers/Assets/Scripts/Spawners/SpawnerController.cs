@@ -5,14 +5,17 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 
 public class SpawnerController : NetworkBehaviour {
-    // Public vars
+    [Tooltip("How long the spawner will spawn things.")]
     public float lifeTime = 20f;
+
+    [Tooltip("The number of seconds between spawning.")]
     public float frequency = 2.95f;
+
+    [Tooltip("The object that will be spawned.")]
     [SerializeField] private GameObject aiPrefab;
 
     
 
-    // Private vars
     private float freqCounter = 0f;
 
 

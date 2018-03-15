@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+
     void Start() {
         transform.GetChild(0).GetComponent<Camera>();
     }
