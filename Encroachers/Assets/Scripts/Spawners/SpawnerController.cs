@@ -32,7 +32,6 @@ public class SpawnerController : NetworkBehaviour {
         {
             freqCounter = 0f;
             // instantiate enemy
-            Vector3 newV = new Vector3(0f, 0.8f, 0f);
             GameObject go = GameObject.Instantiate(aiPrefab, transform.position, Quaternion.identity) as GameObject;
             NetworkServer.Spawn(go);
 
