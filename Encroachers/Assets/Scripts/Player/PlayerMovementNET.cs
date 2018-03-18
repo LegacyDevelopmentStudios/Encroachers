@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [RequireComponent(typeof (Rigidbody))]
 [RequireComponent(typeof (CapsuleCollider))]
-public class PlayerMovement : MonoBehaviour {
+public class PlayerMovementNET : NetworkBehaviour {
     /// <summary>Scalar for scaling input.</summary>
     [Tooltip("This controls how responsive movement feels.")]
     [Range(5f,100f)]
@@ -158,6 +159,12 @@ public class PlayerMovement : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
+        if(!isLocalPlayer)
+        {
+            fpsCamera.enabled = false;
+            return;
+        }
+        
         // Toggle cursor state. This should be moved to a manager script or something.
         if (Input.GetKeyDown(KeyCode.Escape))
         {
