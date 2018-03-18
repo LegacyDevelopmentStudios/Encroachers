@@ -42,12 +42,12 @@ GameObject:
   - component: {fileID: 136017523732011192}
   - component: {fileID: 23229769246948634}
   - component: {fileID: 54674013998710532}
-  - component: {fileID: 114924293139463988}
+  - component: {fileID: 114845608960715330}
   - component: {fileID: 114246914487609456}
   - component: {fileID: 114339933883892832}
   - component: {fileID: 114895868905762476}
   m_Layer: 8
-  m_Name: TestPlayer-IRON 1
+  m_Name: Network Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -419,6 +419,25 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+--- !u!114 &114845608960715330
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1041454982620886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5d7c20d3a776594e9e7d44ff36da575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  responsiveness: 42
+  jumpHeight: 1.6
+  speedMax: 13
+  speedMaxNormal: 13
+  speedMaxSprint: 26
+  dampFactor: 1.8
+  dampMultHorizontal: 1
+  dampMultVertical: 0.01
 --- !u!114 &114895868905762476
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -440,26 +459,6 @@ MonoBehaviour:
   m_SnapThreshold: 5
   m_InterpolateRotation: 1
   m_InterpolateMovement: 1
---- !u!114 &114924293139463988
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1041454982620886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fbea61c8958b7c4e8b3a4cdb1c1bd8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  responsiveness: 40
-  jumpHeight: 1.5
-  speedMax: 15
-  speedMaxNormal: 12
-  speedMaxSprint: 24
-  dampFactor: 2
-  dampMultHorizontal: 1
-  dampMultVertical: 0.01
-  fpsCamera: {fileID: 20409621978023672}
 --- !u!124 &124675697304722880
 Behaviour:
   m_ObjectHideFlags: 1
